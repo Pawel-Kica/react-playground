@@ -8,7 +8,18 @@
 }
 
 @layer components{
-
+    .link{
+        @apply bg-rose-300
+    }
+    .progress-item{
+        @apply flex flex-col items-center
+    }
+    .progress-bar{
+        @apply absolute top-1/4 h-[3px] w-full bg-cyan-m
+    }
+    .progress-box{
+        @apply bg-cyan-m z-10 w-fit rounded-md bg-cyan-m px-2 text-white
+    }
 }
 
 @layer utilities{

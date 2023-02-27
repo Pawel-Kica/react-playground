@@ -8,12 +8,18 @@ module.exports = {
                 xs: '475px',
             },
             colors: {
-                yellow: {
-                    m: '#fefaf0',
+                cyan: {
+                    m: '#679b9b',
+                },
+                orange: {
+                    m: '#ff9a76',
                 },
                 stone: {
-                    m: '#1b1e25',
+                    m: '#ffeadb',
                 },
+            },
+            boxShadow: {
+                m: '0 0 15px 1px rgb(0 0 0 / 40%)',
             },
         },
     },

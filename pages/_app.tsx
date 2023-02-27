@@ -4,11 +4,11 @@ import '../styles/globals.css';
 
 function App({ Component, pageProps }: AppProps) {
     return (
-        <ThemeContextComponent>
-            <main className="w-max-screen min-h-[calc(100vh)]">
+        <main className="w-max-screen relative min-h-[calc(100vh)] w-screen overflow-y-hidden bg-rose-200">
+            <ThemeContextComponent>
                 <Component {...pageProps} />
-            </main>
-        </ThemeContextComponent>
+            </ThemeContextComponent>
+        </main>
     );
 }
 export default App;
