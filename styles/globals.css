@@ -20,6 +20,12 @@
     .progress-box{
         @apply bg-cyan-m z-10 w-fit rounded-md bg-cyan-m px-2 text-white
     }
+    .btn-builder{
+        @apply bg-orange-m text-white px-6 py-3 text-sm rounded-sm
+    }
+    input[type="radio"]:checked + label{
+        background-color: black;
+    }
 }
 
 @layer utilities{

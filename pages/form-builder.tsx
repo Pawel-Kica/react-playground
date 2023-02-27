@@ -1,5 +1,4 @@
-import { z } from 'zod';
-import FormBuilderTemplate from '../components/form-builder/FormBuilderTemplate';
+import FormBuilderTemplate, { FormBuilderConfig } from '../components/form-builder/FormBuilderTemplate';
 import ProgressBar from '../components/form-builder/ProgressBar';
 import { useFormBuilder } from '../hooks/useFormBuilder';
 import { useMultistepForm } from '../hooks/useMultiStep';
@@ -9,22 +8,31 @@ interface CreateAccountBody {
     password: string;
 }
 
-const CREATE_ACCOUNT_FORM_CONFIG = [
+const CREATE_ACCOUNT_FORM_CONFIG: FormBuilderConfig[][] = [
     [
         {
             label: 'First name',
             type: 'text',
             name: 'firstName',
             placeholder: 'Enter your first name',
-            required: true,
-            schema: z.string(),
         },
         {
             label: 'Last name',
             type: 'text',
             name: 'lastName',
-            placeholder: 'Enter your password',
-            required: true,
+            placeholder: 'Enter your last name',
+        },
+        {
+            label: 'Gender',
+            type: 'radio',
+            name: 'gender',
+            placeholder: 'Enter your last name',
+            options: { items: ['Man', 'Woman', 'I prefer not to say'], multiple: false },
+        },
+        {
+            label: 'Date of birth',
+            type: 'date',
+            name: 'dateOfBirth',
         },
     ],
     [
@@ -32,13 +40,11 @@ const CREATE_ACCOUNT_FORM_CONFIG = [
             type: 'email',
             name: 'email',
             placeholder: 'Enter your email address',
-            required: true,
         },
         {
             type: 'password',
             name: 'password',
             placeholder: 'Enter your password',
-            required: true,
         },
     ],
     [
@@ -46,16 +52,16 @@ const CREATE_ACCOUNT_FORM_CONFIG = [
             type: 'text',
             name: 'country',
             placeholder: 'Enter your country',
-            required: true,
         },
         {
             type: 'text',
             name: 'city',
             placeholder: 'Enter your city',
-            required: true,
         },
     ],
 ];
+
+const titles = ['Create your account', 'Personal details', 'Social profiles'];
 
 export default function FormBuilder() {
     const [form, setForm] = useFormBuilder<CreateAccountBody>({ email: '', password: '' });
@@ -73,12 +79,25 @@ export default function FormBuilder() {
     return (
         <div className="relative flex min-h-screen flex-col items-center bg-[#ffeadb] pt-20">
             <ProgressBar step={currentStepIndex} />
-            <div className="relative bg-white shadow-m">
-                <div>FormBuilder</div>
+            <div className="relative flex flex-col items-center bg-white p-12 py-8 shadow-m">
+                <div className="text-xl uppercase text-gray-m">{titles[currentStepIndex]}</div>
                 {element}
-                {isFirstStep || <button onClick={back}>Back</button>}
-                <button onClick={next}>Continue</button>
-                <button onClick={submitFormHandler}>Submit</button>
+                <div className="flex gap-3">
+                    {isFirstStep || (
+                        <button className="btn-builder" onClick={back}>
+                            Back
+                        </button>
+                    )}
+                    {isLastStep ? (
+                        <button className="btn-builder" onClick={submitFormHandler}>
+                            Submit
+                        </button>
+                    ) : (
+                        <button className="btn-builder" onClick={next}>
+                            Continue
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

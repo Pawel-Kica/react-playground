@@ -17,9 +17,15 @@ module.exports = {
                 stone: {
                     m: '#ffeadb',
                 },
+                gray: {
+                    m: '#2c3e50',
+                },
             },
             boxShadow: {
                 m: '0 0 15px 1px rgb(0 0 0 / 40%)',
+            },
+            borderWidth: {
+                1: '1px',
             },
         },
     },
