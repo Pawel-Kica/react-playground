@@ -23,11 +23,18 @@
     .btn-builder{
         @apply bg-orange-m text-white px-6 py-3 text-sm rounded-sm
     }
-    input[type="radio"]:checked + label{
-        background-color: black;
-    }
+}
+.input-checkbox{
+    @apply flex flex-row
+}
+.input-checkbox>input{
+    @apply -order-1 ;
+    width: min-content;
+    margin-right: 10px;
+    margin-top: 0px
+}
+.input-checkbox>label{
 }
 
 @layer utilities{
-
 }
