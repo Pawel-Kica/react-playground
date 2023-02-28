@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import FormBuilderTemplate, { FormBuilderConfig } from '../components/form-builder/FormBuilderTemplate';
 import ProgressBar from '../components/form-builder/ProgressBar';
@@ -6,6 +7,11 @@ import { useFormBuilder } from '../hooks/useFormBuilder';
 import { useMultistepForm } from '../hooks/useMultiStep';
 
 type genderOptions = 'Man' | 'Woman' | 'Prefer not to say';
+enum GenderOptionsEnum {
+    Man = 'Man',
+    Woman = 'Woman',
+    Prefer_not_to_say = 'Prefer not to say',
+}
 
 interface CreateAccountBody {
     email: string;
@@ -43,7 +49,18 @@ const CREATE_ACCOUNT_FORM_CONFIG: FormBuilderConfig[][] = [
             type: 'radio',
             name: 'gender',
             placeholder: 'Enter your last name',
-            options: { items: ['Man', 'Woman', 'Prefer not to say'], multiple: false },
+            options: { items: Object.values(GenderOptionsEnum), multiple: false },
+            schema: z.nativeEnum(GenderOptionsEnum, {
+                // https://stackoverflow.com/questions/73557949/zod-error-handling-with-custom-error-messages-on-enums
+                errorMap: (issue, _ctx) => {
+                    switch (issue.code) {
+                        case 'invalid_enum_value':
+                            return { message: 'Gender is required' };
+                        default:
+                            return { message: 'Gender is required' };
+                    }
+                },
+            }),
         },
         {
             label: 'Date of birth',
@@ -78,6 +95,7 @@ const CREATE_ACCOUNT_FORM_CONFIG: FormBuilderConfig[][] = [
             type: 'email',
             name: 'email',
             placeholder: 'Enter your email address',
+            schema: z.string().email(),
         },
         {
             type: 'password',
@@ -103,39 +121,43 @@ const CREATE_ACCOUNT_FORM_CONFIG: FormBuilderConfig[][] = [
 const titles = ['Create your account', 'Personal details', 'Residence details'];
 
 export default function FormBuilder() {
-    const [form, setForm, validateAll] = useFormBuilder<Record<keyof CreateAccountBody, { error: string; value: any }>>(
-        {
-            email: { value: '', error: '' },
-            password: { value: '', error: '' },
-            firstName: { value: '', error: '' },
-            lastName: { value: '', error: '' },
-            dateOfBirth: { value: '', error: '' },
-            age: { value: '', error: '' },
-            termsAgree: { value: false, error: '' },
-            gender: { value: '', error: '' },
-            city: { value: '', error: '' },
-            country: { value: '', error: '' },
-        },
-    );
+    const [pass, setPass] = useState<boolean>(false);
 
-    const { steps, currentStepIndex, element, isFirstStep, isLastStep, back, next } = useMultistepForm(
+    const { form, setForm, validateAll, canContinue } = useFormBuilder<
+        Record<keyof CreateAccountBody, { error: string; value: any }>
+    >({
+        firstName: { value: '', error: '' },
+        lastName: { value: '', error: '' },
+        gender: { value: '', error: '' },
+        dateOfBirth: { value: '', error: '' },
+        age: { value: '', error: '' },
+        termsAgree: { value: false, error: '' },
+        email: { value: '', error: '' },
+        password: { value: '', error: '' },
+        city: { value: '', error: '' },
+        country: { value: '', error: '' },
+    });
+
+    const { currentStepIndex, element, isFirstStep, isLastStep, back, next } = useMultistepForm(
         CREATE_ACCOUNT_FORM_CONFIG.map((config, k) => (
             <FormBuilderTemplate key={k} config={config} state={form} onChange={setForm} />
         )),
     );
 
-    function submitFormHandler() {
-        //
-    }
+    useEffect(() => {
+        const result = canContinue(CREATE_ACCOUNT_FORM_CONFIG[currentStepIndex]);
+        if (result !== pass) setPass(result);
+    }, [canContinue, currentStepIndex, pass]);
 
     function continueHandler() {
-        const validationResult = validateAll(CREATE_ACCOUNT_FORM_CONFIG[currentStepIndex]);
-        if (validationResult) {
+        if (!pass) {
+            validateAll(CREATE_ACCOUNT_FORM_CONFIG[currentStepIndex]);
+        } else {
             next();
         }
     }
 
-    console.log(form);
+    console.log(pass, 'lol pass');
 
     return (
         <div className="relative m-auto flex min-h-screen flex-col items-center bg-[#ffeadb] py-4 xs:pt-10">
@@ -150,11 +172,11 @@ export default function FormBuilder() {
                         </button>
                     )}
                     {isLastStep ? (
-                        <button className="btn-builder" onClick={submitFormHandler}>
+                        <button className="btn-builder" onClick={() => alert('submitted!')}>
                             Submit
                         </button>
                     ) : (
-                        <button className="btn-builder" onClick={continueHandler}>
+                        <button className={`btn-builder ${pass || 'disabled'}`} onClick={continueHandler}>
                             Continue
                         </button>
                     )}

@@ -1,47 +1,60 @@
-import { ChangeEvent, HTMLInputTypeAttribute, useState } from 'react';
+import { ChangeEvent, HTMLInputTypeAttribute, useCallback, useState } from 'react';
 import { ZodAny } from 'zod';
 import { FormBuilderConfig } from './../components/form-builder/FormBuilderTemplate';
 
 export type UseFormSetFunctionType = (e: ChangeEvent<HTMLInputElement>, schema?: ZodAny) => void;
 
-export function useFormBuilder<T>(initialValues: T): [T, UseFormSetFunctionType, any] {
-    const [values, _setValues] = useState(initialValues);
+export function useFormBuilder<T>(initialValues: T) {
+    const [form, _setForm] = useState(initialValues);
 
     function validateAll(config: FormBuilderConfig[]) {
         let updatePayload: Record<string, any> = {};
         for (const key of config) {
-            //@ts-ignore
-            const value = values[key.name].value;
+            const value = form[key.name].value;
             const error = validateSingle(value, key.type, key.schema);
             if (error) {
                 updatePayload[key.name] = { value, error };
             }
         }
-        console.log(updatePayload, 'paylooooad');
         if (Object.keys(updatePayload).length) {
-            _setValues((prev) => ({ ...prev, ...updatePayload }));
+            _setForm((prev) => ({ ...prev, ...updatePayload }));
             return false;
         }
         return true;
     }
 
+    const canContinue = useCallback(
+        (config: FormBuilderConfig[]) => {
+            for (const key of config) {
+                const value = form[key.name].value;
+                const error = validateSingle(value, key.type, key.schema);
+                console.log(error, 'error', key.name);
+                if (error) {
+                    return false;
+                }
+            }
+            return true;
+        },
+        [form],
+    );
+
     function validateSingle(value: any, type: HTMLInputTypeAttribute, schema?: any) {
-        if (schema) {
-            switch (type) {
-                case 'date':
-                    value = new Date(value);
-                    break;
-                default:
-                    break;
-            }
-            const result = schema.safeParse(value);
-            if (!result.success) {
-                return result.error.issues[0].message;
-            }
+        if (!schema) return '';
+
+        switch (type) {
+            case 'date':
+                value = new Date(value);
+                break;
+            default:
+                break;
+        }
+        const result = schema.safeParse(value);
+        if (!result.success) {
+            return result.error.issues[0].message;
         }
     }
 
-    function setValues(e, schema) {
+    function setForm(e: ChangeEvent<HTMLInputElement>, schema: any) {
         let error = '';
         let update_value: any = e.target.value;
 
@@ -56,11 +69,11 @@ export function useFormBuilder<T>(initialValues: T): [T, UseFormSetFunctionType,
         }
         error = validateSingle(update_value, e.target.type, schema);
 
-        _setValues((prev) => ({
+        _setForm((prev) => ({
             ...prev,
             [e.target.name]: { value: update_value, error },
         }));
     }
 
-    return [values, setValues, validateAll];
+    return { form, setForm, validateAll, canContinue };
 }
