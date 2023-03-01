@@ -1,4 +1,5 @@
 import { ValueOf } from 'next/dist/shared/lib/constants';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import {
     CREATE_ACCOUNT_FORM_FIELDS,
@@ -60,33 +61,44 @@ export default function FormBuilder() {
     }, [canContinue, currentStepIndex, pass]);
 
     function continueHandler() {
-        if (pass) return next();
-        validateAll(CREATE_ACCOUNT_FORM_FIELDS[currentStepIndex]);
+        if (!pass) return validateAll(CREATE_ACCOUNT_FORM_FIELDS[currentStepIndex]);
+        canContinue(CREATE_ACCOUNT_FORM_FIELDS[currentStepIndex + 1]);
+        next();
+    }
+
+    function submitHandler() {
+        if (!pass) return validateAll(CREATE_ACCOUNT_FORM_FIELDS[currentStepIndex]);
+        alert('submitted');
     }
 
     return (
         <div className="relative m-auto flex min-h-screen flex-col items-center bg-[#ffeadb] py-4 xs:pt-10">
-            <ProgressBar step={currentStepIndex} />
-            <div className="relative m-4 flex w-11/12 max-w-md flex-col items-center bg-white py-6 px-2 shadow-m">
-                <div className="text-xl uppercase text-gray-m">{CREATE_ACCOUNT_FORM_TITLES[currentStepIndex]}</div>
-                {element}
-                <div className="flex gap-3">
-                    {isFirstStep || (
-                        <button className="btn-builder" onClick={back}>
-                            Back
-                        </button>
-                    )}
-                    {isLastStep ? (
-                        <button className="btn-builder" onClick={() => alert('submitted!')}>
-                            Submit
-                        </button>
-                    ) : (
-                        <button className={`btn-builder ${pass || 'disabled'}`} onClick={continueHandler}>
-                            Continue
-                        </button>
-                    )}
+            <div className="flex-1">
+                <ProgressBar step={currentStepIndex} />
+                <div className="relative m-4 flex w-11/12 max-w-md flex-col items-center bg-white py-6 px-2 shadow-m">
+                    <div className="text-xl uppercase text-gray-m">{CREATE_ACCOUNT_FORM_TITLES[currentStepIndex]}</div>
+                    {element}
+                    <div className="flex gap-3">
+                        {isFirstStep || (
+                            <button className="btn-builder" onClick={back}>
+                                Back
+                            </button>
+                        )}
+                        {isLastStep ? (
+                            <button className={`btn-builder ${pass || 'disabled'}`} onClick={submitHandler}>
+                                Submit
+                            </button>
+                        ) : (
+                            <button className={`btn-builder ${pass || 'disabled'}`} onClick={continueHandler}>
+                                Continue
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
+            <footer className="btn-builder py-1">
+                <Link href="/">Home</Link>
+            </footer>
         </div>
     );
 }

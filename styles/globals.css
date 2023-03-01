@@ -3,14 +3,13 @@
 @tailwind utilities;
 
 
-@layer base{
-
+html,body{
+    overflow-x:hidden 
 }
 
+@layer base{}
+
 @layer components{
-    .link{
-        @apply bg-rose-300
-    }
     .progress-item{
         @apply flex flex-col items-center
     }
@@ -18,7 +17,7 @@
         @apply absolute top-1/4 h-[3px] w-full bg-cyan-m
     }
     .progress-box{
-        @apply bg-cyan-m z-10 w-fit rounded-md bg-cyan-m px-2 text-white
+        @apply bg-cyan-m z-10 w-fit rounded-md px-2 text-white
     }
     .btn-builder{
         @apply bg-orange-m text-white px-6 py-3 text-sm rounded-sm
@@ -27,17 +26,12 @@
         @apply bg-gray-400
     }
 }
+
+@layer utilities{}
+
 .input-checkbox{
     @apply flex flex-row
 }
 .input-checkbox>input{
-    @apply -order-1 ;
-    width: min-content;
-    margin-right: 10px;
-    margin-top: 0px
-}
-.input-checkbox>label{
-}
-
-@layer utilities{
+    @apply -order-1 w-min mr-2 mt-0
 }

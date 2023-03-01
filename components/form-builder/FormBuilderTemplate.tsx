@@ -7,7 +7,7 @@ export interface FormBuilderField {
     name: string;
     placeholder?: string;
     label?: string;
-    // Zod any type
+    // Zod schema type
     schema?: ZodSchema;
     // Use optional instead of required (default required true), because optional parameter rarely occurs
     optional?: boolean;

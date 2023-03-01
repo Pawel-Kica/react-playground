@@ -11,6 +11,7 @@ export enum GenderOptionsEnum {
 const yesterday = dayjs().subtract(1, 'd');
 
 export const CREATE_ACCOUNT_FORM_FIELDS: FormBuilderField[][] = [
+    // Step 1
     [
         {
             label: 'First name',
@@ -35,14 +36,7 @@ export const CREATE_ACCOUNT_FORM_FIELDS: FormBuilderField[][] = [
             options: { items: Object.values(GenderOptionsEnum), multiple: false },
             schema: z.nativeEnum(GenderOptionsEnum, {
                 // https://stackoverflow.com/questions/73557949/zod-error-handling-with-custom-error-messages-on-enums
-                errorMap: (issue, _ctx) => {
-                    switch (issue.code) {
-                        case 'invalid_enum_value':
-                            return { message: 'Gender is required' };
-                        default:
-                            return { message: 'Gender is required' };
-                    }
-                },
+                errorMap: () => ({ message: 'Gender is required' }),
             }),
         },
         {
@@ -73,6 +67,7 @@ export const CREATE_ACCOUNT_FORM_FIELDS: FormBuilderField[][] = [
             schema: z.custom((data) => data === true, 'You must agree to terms and privacy'),
         },
     ],
+    // Step 2
     [
         {
             type: 'email',
@@ -84,7 +79,7 @@ export const CREATE_ACCOUNT_FORM_FIELDS: FormBuilderField[][] = [
             type: 'password',
             name: 'password',
             placeholder: 'Enter your password',
-            schema: z.string().min(8, 'Password must contain at least 2 characters'),
+            schema: z.string().min(8, 'Password must contain at least 8 characters'),
         },
         {
             label: 'Phone number',
@@ -92,16 +87,19 @@ export const CREATE_ACCOUNT_FORM_FIELDS: FormBuilderField[][] = [
             name: 'phone',
             placeholder: 'XXX-YYY-ZZZ',
             schema: z.string().regex(new RegExp(/^[0-9]{3}-[0-9]{3}-[0-9]{3}$/), 'Required format: XXX-YYY-ZZZ'), // Normal regex
-            // .regex(new RegExp(/^\d{3}-\d{3}-\d{3}$/), 'Phone number must be in format xxx-yyy-zzz'), // Fancy regex
+            // .regex(new RegExp(/^\d{3}-\d{3}-\d{3}$/), 'Required format: XXX-YYY-ZZZ'), // Fancy regex
         },
     ],
+    // Step 3
     [
         {
             type: 'text',
             name: 'country',
             placeholder: 'Enter your country',
+            schema: z.string().min(2, 'Country must contain at least 2 characters'),
         },
         {
+            label: 'City (optional)',
             type: 'text',
             name: 'city',
             placeholder: 'Enter your city',

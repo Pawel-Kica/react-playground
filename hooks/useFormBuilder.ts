@@ -1,5 +1,5 @@
 import { ChangeEvent, HTMLInputTypeAttribute, useCallback, useState } from 'react';
-import { ZodAnyDef, ZodSchema } from 'zod';
+import { ZodSchema } from 'zod';
 import { FormBuilderField } from './../components/form-builder/FormBuilderTemplate';
 
 export type UseFormSetFunctionType = (e: ChangeEvent<HTMLInputElement>, schema?: ZodSchema) => void;
@@ -10,6 +10,7 @@ export function useFormBuilder<T>(initialValues: T) {
     function validateAll(fields: FormBuilderField[]) {
         let updatePayload: Record<string, any> = {};
         for (const key of fields) {
+            //@ts-ignore
             const value = form[key.name].value;
             const error = validateSingle(value, key.type, key.schema);
             if (error) {
@@ -26,18 +27,19 @@ export function useFormBuilder<T>(initialValues: T) {
     const canContinue = useCallback(
         (fields: FormBuilderField[]) => {
             for (const key of fields) {
+                //@ts-ignore
                 const value = form[key.name].value;
+
                 const error = validateSingle(value, key.type, key.schema);
-                if (error) {
-                    return false;
-                }
+                // If any field is not valid, return false (validation failed)
+                if (error) return false;
             }
             return true;
         },
         [form],
     );
 
-    function validateSingle(value: any, type: HTMLInputTypeAttribute, schema?: ZodAnyDef) {
+    function validateSingle(value: any, type: HTMLInputTypeAttribute, schema?: ZodSchema) {
         if (!schema) return '';
 
         switch (type) {
@@ -53,7 +55,7 @@ export function useFormBuilder<T>(initialValues: T) {
         return result.error.issues[0].message;
     }
 
-    function setForm(e: ChangeEvent<HTMLInputElement>, schema?: any) {
+    function setForm(e: ChangeEvent<HTMLInputElement>, schema?: ZodSchema) {
         let update_value: any = e.target.value;
 
         switch (e.target.type) {
