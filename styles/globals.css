@@ -24,7 +24,7 @@
         @apply bg-orange-m text-white px-6 py-3 text-sm rounded-sm
     }
     .btn-builder.disabled{
-        @apply bg-amber-700
+        @apply bg-gray-400
     }
 }
 .input-checkbox{

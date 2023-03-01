@@ -1,15 +1,15 @@
 import { ChangeEvent, HTMLInputTypeAttribute, useCallback, useState } from 'react';
-import { ZodAny } from 'zod';
-import { FormBuilderConfig } from './../components/form-builder/FormBuilderTemplate';
+import { ZodAnyDef, ZodSchema } from 'zod';
+import { FormBuilderField } from './../components/form-builder/FormBuilderTemplate';
 
-export type UseFormSetFunctionType = (e: ChangeEvent<HTMLInputElement>, schema?: ZodAny) => void;
+export type UseFormSetFunctionType = (e: ChangeEvent<HTMLInputElement>, schema?: ZodSchema) => void;
 
 export function useFormBuilder<T>(initialValues: T) {
     const [form, _setForm] = useState(initialValues);
 
-    function validateAll(config: FormBuilderConfig[]) {
+    function validateAll(fields: FormBuilderField[]) {
         let updatePayload: Record<string, any> = {};
-        for (const key of config) {
+        for (const key of fields) {
             const value = form[key.name].value;
             const error = validateSingle(value, key.type, key.schema);
             if (error) {
@@ -24,11 +24,10 @@ export function useFormBuilder<T>(initialValues: T) {
     }
 
     const canContinue = useCallback(
-        (config: FormBuilderConfig[]) => {
-            for (const key of config) {
+        (fields: FormBuilderField[]) => {
+            for (const key of fields) {
                 const value = form[key.name].value;
                 const error = validateSingle(value, key.type, key.schema);
-                console.log(error, 'error', key.name);
                 if (error) {
                     return false;
                 }
@@ -38,7 +37,7 @@ export function useFormBuilder<T>(initialValues: T) {
         [form],
     );
 
-    function validateSingle(value: any, type: HTMLInputTypeAttribute, schema?: any) {
+    function validateSingle(value: any, type: HTMLInputTypeAttribute, schema?: ZodAnyDef) {
         if (!schema) return '';
 
         switch (type) {
@@ -49,13 +48,12 @@ export function useFormBuilder<T>(initialValues: T) {
                 break;
         }
         const result = schema.safeParse(value);
-        if (!result.success) {
-            return result.error.issues[0].message;
-        }
+        if (result.success) return '';
+
+        return result.error.issues[0].message;
     }
 
-    function setForm(e: ChangeEvent<HTMLInputElement>, schema: any) {
-        let error = '';
+    function setForm(e: ChangeEvent<HTMLInputElement>, schema?: any) {
         let update_value: any = e.target.value;
 
         switch (e.target.type) {
@@ -67,7 +65,7 @@ export function useFormBuilder<T>(initialValues: T) {
             default:
                 break;
         }
-        error = validateSingle(update_value, e.target.type, schema);
+        const error = validateSingle(update_value, e.target.type, schema);
 
         _setForm((prev) => ({
             ...prev,

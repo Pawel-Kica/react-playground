@@ -1,13 +1,14 @@
 import { HTMLInputTypeAttribute, useId } from 'react';
+import { ZodSchema } from 'zod';
 import { UseFormSetFunctionType } from '../../hooks/useFormBuilder';
 
-export interface FormBuilderConfig {
+export interface FormBuilderField {
     type: HTMLInputTypeAttribute;
     name: string;
     placeholder?: string;
     label?: string;
     // Zod any type
-    schema?: any;
+    schema?: ZodSchema;
     // Use optional instead of required (default required true), because optional parameter rarely occurs
     optional?: boolean;
     // Number
@@ -18,18 +19,18 @@ export interface FormBuilderConfig {
 }
 
 export default function FormBuilderTemplate({
-    config,
+    fields,
     state,
     onChange,
 }: {
-    config: FormBuilderConfig[];
+    fields: FormBuilderField[];
     state: Record<string, any>;
     onChange: UseFormSetFunctionType;
 }) {
     const id = useId();
     return (
         <div className="w-full p-4">
-            {config.map((el, k) => {
+            {fields.map((el, k) => {
                 const key = id + '-' + k;
                 const label = el.label || el.name.charAt(0).toUpperCase() + el.name.slice(1);
 
